@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100);
             $table->string('contact_number', 20);
+            $table->string('address');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -47,6 +48,7 @@ return new class extends Migration
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100);
             $table->string('contact_number', 20);
+            $table->string('address', 20);
             $table->timestamps();
             $table->softDeletes();
         });
