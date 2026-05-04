@@ -4,6 +4,13 @@ import StudentForm from '@/Components/Forms/StudentForm.vue'
 import TeacherForm from '@/Components/Forms/TeacherForm.vue'
 import GuardianForm from '@/Components/Forms/GuardianForm.vue'
 import { ref, computed } from 'vue'
+import { useForm } from '@inertiajs/vue3'
+
+const props = defineProps({
+  students: { type: Array, default: () => [] },
+  teachers: { type: Array, default: () => [] },
+  guardians: { type: Array, default: () => [] },
+})
 
 const active_tab = ref('students')
 
@@ -13,26 +20,10 @@ const tabs = [
   { key: 'guardians', label: 'Guardians' },
 ]
 
-const students = [
-  { id: 1, first_name: 'Juan', middle_name: 'Santos', last_name: 'Dela Cruz', contact_number: '+63 912 345 6789' },
-  { id: 2, first_name: 'Ana', middle_name: null, last_name: 'Lim', contact_number: '+63 917 654 3210' },
-  { id: 3, first_name: 'Marco', middle_name: 'Jose', last_name: 'Reyes', contact_number: null },
-]
-
-const teachers = [
-  { id: 1, first_name: 'Rodel', middle_name: null, last_name: 'Santos', contact_number: '+63 918 111 2222' },
-  { id: 2, first_name: 'Liza', middle_name: 'Cruz', last_name: 'Reyes', contact_number: '+63 920 333 4444' },
-]
-
-const guardians = [
-  { id: 1, first_name: 'Maria', middle_name: 'Santos', last_name: 'Dela Cruz', contact_number: '+63 915 777 8888' },
-  { id: 2, first_name: 'Pedro', middle_name: null, last_name: 'Lim', contact_number: '+63 916 999 0000' },
-]
-
 const data = computed(() => {
-  if (active_tab.value === 'students') return students
-  if (active_tab.value === 'teachers') return teachers
-  if (active_tab.value === 'guardians') return guardians
+  if (active_tab.value === 'students') return props.students
+  if (active_tab.value === 'teachers') return props.teachers
+  if (active_tab.value === 'guardians') return props.guardians
   return []
 })
 
@@ -50,6 +41,30 @@ function get_full_name(person) {
     .join(' ')
 }
 
+const studentForm = useForm({
+  first_name: '',
+  middle_name: '',
+  last_name: '',
+  contact_number: '',
+})
+
+const teacherForm = useForm({
+  first_name: '',
+  middle_name: '',
+  last_name: '',
+  contact_number: '',
+  address: '',
+})
+
+const guardianForm = useForm({
+  first_name: '',
+  middle_name: '',
+  last_name: '',
+  contact_number: '',
+  relationship: '',
+  address: '',
+})
+
 const show_slide_modal = ref(false)
 
 const slide_over_title = computed(() => {
@@ -61,13 +76,34 @@ const slide_over_title = computed(() => {
   return labels[active_tab.value]
 })
 
+const activeForm = computed(() => {
+  if (active_tab.value === 'students') return studentForm
+  if (active_tab.value === 'teachers') return teacherForm
+  if (active_tab.value === 'guardians') return guardianForm
+})
+
+const activeRoute = computed(() => {
+  if (active_tab.value === 'students') return '/students'
+  if (active_tab.value === 'teachers') return '/teachers'
+  if (active_tab.value === 'guardians') return '/guardians'
+})
+
+function submit() {
+  activeForm.value.post(activeRoute.value, {
+    onSuccess: () => {
+      show_slide_modal.value = false
+      activeForm.value.reset()
+    },
+  })
+}
+
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 p-8">
     <div class="max-w-5xl mx-auto">
       <div class="mb-6">
-        <h1 class="text-xl font-medium text-gray-900" School Records></h1>
+        <h1 class="text-xl font-medium text-gray-900">School Records</h1>
         <p class="text-sm text-gray-500 mt-1">Manage students, teachers, and guardians</p>
       </div>
 
@@ -86,9 +122,9 @@ const slide_over_title = computed(() => {
 
         <div class="flex border-b border-gray-100 px-6">
           <button v-for="tab in tabs" :key="tab.key" @click="active_tab = tab.key"
-            class="py-3 px-4 text-sm border-b2 transition-colors" :class="active_tab === tab.key
+            class="py-3 px-4 text-sm border-b-2 transition-colors" :class="active_tab === tab.key
               ? 'border-blue-600 text-blue-600 font-medium'
-              : 'border=transparent text-gray-400 hover:text-gray-600'">
+              : 'border-transparent text-gray-400 hover:text-gray-600'">
             {{ tab.label }}
           </button>
         </div>
@@ -145,9 +181,9 @@ const slide_over_title = computed(() => {
       </div>
     </div>
     <SlideModal :show="show_slide_modal" :title="slide_over_title" @close="show_slide_modal = false">
-      <StudentForm  v-if="active_tab === 'students'"  />
-      <TeacherForm  v-if="active_tab === 'teachers'"  />
-      <GuardianForm v-if="active_tab === 'guardians'" />
+      <StudentForm v-if="active_tab === 'students'" :form="studentForm" />
+      <TeacherForm v-if="active_tab === 'teachers'" :form="teacherForm" />
+      <GuardianForm v-if="active_tab === 'guardians'" :form="guardianForm" />
 
       <template #footer>
         <div class="flex gap-3">
@@ -155,9 +191,9 @@ const slide_over_title = computed(() => {
             class="flex-1 border border-gray-200 text-gray-500 text-sm rounded-lg py-2 hover:bg-gray-50 transition-colors">
             Cancel
           </button>
-          <button
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg py-2 transition-colors">
-            Save
+          <button @click="submit" :disabled="activeForm.processing"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2 transition-colors">
+            {{ activeForm.processing ? 'Saving...' : 'Save' }}
           </button>
         </div>
       </template>

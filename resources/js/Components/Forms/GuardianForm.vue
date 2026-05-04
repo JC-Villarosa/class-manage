@@ -1,13 +1,6 @@
 <script setup>
-import { reactive } from 'vue'
-
-const form = reactive({
-    first_name: '',
-    middle_name: '',
-    last_name: '',
-    contact_number: '',
-    relationship: '',
-    address: '',
+defineProps({
+  form: { type: Object, required: true }
 })
 </script>
 
