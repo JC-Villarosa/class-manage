@@ -1,5 +1,8 @@
 <script setup>
 import SlideModal from '@/Components/SlideModal.vue'
+import StudentForm from '@/Components/Forms/StudentForm.vue'
+import TeacherForm from '@/Components/Forms/TeacherForm.vue'
+import GuardianForm from '@/Components/Forms/GuardianForm.vue'
 import { ref, computed } from 'vue'
 
 const active_tab = ref('students')
@@ -142,7 +145,9 @@ const slide_over_title = computed(() => {
       </div>
     </div>
     <SlideModal :show="show_slide_modal" :title="slide_over_title" @close="show_slide_modal = false">
-      <p class="text-sm text-gray-400">Form goes here in step 4.</p>
+      <StudentForm  v-if="active_tab === 'students'"  />
+      <TeacherForm  v-if="active_tab === 'teachers'"  />
+      <GuardianForm v-if="active_tab === 'guardians'" />
 
       <template #footer>
         <div class="flex gap-3">
