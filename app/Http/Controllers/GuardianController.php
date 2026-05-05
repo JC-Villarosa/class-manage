@@ -14,7 +14,6 @@ class GuardianController extends Controller
             'middle_name'    => 'nullable|string|max:100',
             'last_name'      => 'required|string|max:100',
             'contact_number' => 'required|string|max:20',
-            'relationship'   => 'required|string|max:50',
             'address'        => 'nullable|string',
         ]);
 

@@ -46,6 +46,9 @@ const studentForm = useForm({
   middle_name: '',
   last_name: '',
   contact_number: '',
+  guardian_ids: [],
+  relationships: [],
+  teacher_ids: [],
 })
 
 const teacherForm = useForm({
@@ -61,7 +64,6 @@ const guardianForm = useForm({
   middle_name: '',
   last_name: '',
   contact_number: '',
-  relationship: '',
   address: '',
 })
 
@@ -140,7 +142,15 @@ function submit() {
                 <th class="text-left text-xs text-gray-400 font-medium uppercase tracking-wide px-6 py-3">
                   Contact number
                 </th>
-                <th class="px-6 py-3"></th>
+                <th v-if="active_tab === 'students'"
+                  class="text-left text-xs text-gray-400 font-medium uppercase tracking-wide px-6 py-3">
+                  Guardians
+                </th>
+                <th v-if="active_tab === 'students'"
+                  class="text-left text-xs text-gray-400 font-medium uppercase tracking-wide px-6 py-3">
+                  Teachers
+                </th>
+                <th class="px-6 py-3">Actions</th>
               </tr>
             </thead>
 
@@ -159,6 +169,27 @@ function submit() {
 
                 <td class="px-6 py-3 text-gray-400">
                   {{ person.contact_number ?? 'not set' }}
+                </td>
+
+                <td v-if="active_tab === 'students'" class="px-6 py-3">
+                  <div v-if="person.guardians && person.guardians.length > 0" class="flex flex-wrap gap-1">
+                    <span v-for="guardian in person.guardians" :key="guardian.id"
+                      class="inline-flex flex-col text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md">
+                      <span>{{ get_full_name(guardian) }}</span>
+                      <span class="text-blue-400 capitalize">{{ guardian.pivot.relationship ?? 'not set' }}</span>
+                    </span>
+                  </div>
+                  <span v-else class="text-xs text-gray-300">No guardian linked</span>
+                </td>
+
+                <td v-if="active_tab === 'students'" class="px-6 py-3">
+                  <div v-if="person.teachers && person.teachers.length > 0" class="flex flex-wrap gap-1">
+                    <span v-for="teacher in person.teachers" :key="teacher.id"
+                      class="inline-flex text-xs bg-teal-50 text-teal-600 px-2 py-1 rounded-md">
+                      {{ get_full_name(teacher) }}
+                    </span>
+                  </div>
+                  <span v-else class="text-xs text-gray-300">No teacher linked</span>
                 </td>
 
                 <td class="px-6 py-3">
@@ -181,7 +212,8 @@ function submit() {
       </div>
     </div>
     <SlideModal :show="show_slide_modal" :title="slide_over_title" @close="show_slide_modal = false">
-      <StudentForm v-if="active_tab === 'students'" :form="studentForm" />
+      <StudentForm v-if="active_tab === 'students'" :form="studentForm" :guardians="props.guardians"
+        :teachers="props.teachers" />
       <TeacherForm v-if="active_tab === 'teachers'" :form="teacherForm" />
       <GuardianForm v-if="active_tab === 'guardians'" :form="guardianForm" />
 

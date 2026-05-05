@@ -42,24 +42,6 @@ defineProps({
 
         <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-gray-600">
-                Relationship to student <span class="text-red-400">*</span>
-            </label>
-            <select v-model="form.relationship"
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition bg-white">
-                <option value="" disabled>Select relationship...</option>
-                <option value="mother">Mother</option>
-                <option value="father">Father</option>
-                <option value="grandmother">Grandmother</option>
-                <option value="grandfather">Grandfather</option>
-                <option value="aunt">Aunt</option>
-                <option value="uncle">Uncle</option>
-                <option value="sibling">Sibling</option>
-                <option value="guardian">Legal guardian</option>
-            </select>
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-gray-600">
                 Address
                 <span class="text-gray-300 font-normal ml-1">(optional)</span>
             </label>
