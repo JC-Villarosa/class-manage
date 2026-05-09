@@ -371,16 +371,26 @@
 
             <div>
               <label class="label font-semibold text-indigo-600">Assign Guardians</label>
-              <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                <label v-for="g in guardians" :key="g.id" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                  <input
-                    type="checkbox"
-                    :checked="form.guardian_ids.includes(g.id)"
-                    @change="toggle_guardian(g.id)"
-                    class="w-4 h-4 text-indigo-600 rounded"
-                  />
-                  <span class="text-sm text-gray-700">{{ g.full_name }}</span>
-                </label>
+              <div class="flex flex-col gap-2 max-h-52 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                <div v-for="g in guardians" :key="g.id" class="space-y-1">
+                  <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      :checked="g.id in form.guardian_relationships"
+                      @change="toggle_guardian(g.id)"
+                      class="w-4 h-4 text-indigo-600 rounded"
+                    />
+                    <span class="text-sm font-medium text-gray-700">{{ g.full_name }}</span>
+                  </label>
+                  <div v-if="g.id in form.guardian_relationships" class="pl-8">
+                    <input
+                      v-model="form.guardian_relationships[g.id]"
+                      type="text"
+                      class="input-primary text-sm"
+                      placeholder="Relationship (e.g. Mother, Father, Uncle)"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -524,7 +534,7 @@ const form  = reactive({
   contact_number: '',
   email: '',
   teacher_ids: [],
-  guardian_ids: [],
+  guardian_relationships: {},
 })
 let editing_id = null
 
@@ -558,7 +568,7 @@ function open_add_modal(type)
     contact_number: '',
     email: '',
     teacher_ids: [],
-    guardian_ids: [],
+    guardian_relationships: {},
   })
   editing_id       = null
   form_error.value = ''
@@ -574,8 +584,10 @@ function open_edit_modal(type, item)
     subject:        item.subject || '',
     contact_number: item.contact_number || '',
     email:          item.email || '',
-    teacher_ids:    type === 'student' ? (item.teachers?.map(t => t.id) || []) : [],
-    guardian_ids:   type === 'student' ? (item.guardians?.map(g => g.id) || []) : [],
+    teacher_ids:             type === 'student' ? (item.teachers?.map(t => t.id) || []) : [],
+    guardian_relationships:  type === 'student'
+      ? Object.fromEntries((item.guardians || []).map(g => [g.id, g.relationship || '']))
+      : {},
   })
   editing_id       = item.id
   form_error.value = ''
@@ -594,11 +606,10 @@ function toggle_teacher(teacher_id)
 
 function toggle_guardian(guardian_id)
 {
-  const idx = form.guardian_ids.indexOf(guardian_id)
-  if (idx === -1) {
-    form.guardian_ids.push(guardian_id)
+  if (guardian_id in form.guardian_relationships) {
+    delete form.guardian_relationships[guardian_id]
   } else {
-    form.guardian_ids.splice(idx, 1)
+    form.guardian_relationships[guardian_id] = ''
   }
 }
 
@@ -625,12 +636,13 @@ async function submit_form()
   const method = modal.mode === 'add' ? 'POST' : 'PUT'
 
   const payload = { ...form }
-  if (modal.type !== 'student') {
-    delete payload.teacher_ids
-    delete payload.guardian_ids
-  }
+  delete payload.teacher_ids
+  delete payload.guardian_relationships
   if (modal.type !== 'teacher') {
     delete payload.subject
+  }
+  if (modal.type !== 'guardian') {
+    delete payload.email
   }
 
   try {
@@ -657,10 +669,15 @@ async function submit_form()
           headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': get_csrf_token() },
           body: JSON.stringify({ teacher_ids: form.teacher_ids }),
         }),
-        form.guardian_ids.length > 0 && fetch(`/students/${student_id}/sync-guardians`, {
+        Object.keys(form.guardian_relationships).length > 0 && fetch(`/students/${student_id}/sync-guardians`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': get_csrf_token() },
-          body: JSON.stringify({ guardian_ids: form.guardian_ids }),
+          body: JSON.stringify({
+            guardians: Object.entries(form.guardian_relationships).map(([id, relationship]) => ({
+              id: parseInt(id),
+              relationship: relationship || null,
+            })),
+          }),
         }),
       ].filter(Boolean))
 

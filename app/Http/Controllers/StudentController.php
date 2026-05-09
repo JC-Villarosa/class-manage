@@ -105,11 +105,16 @@ class StudentController extends Controller
     public function sync_guardians(Request $request, Student $student)
     {
         $data = $request->validate([
-            'guardian_ids' => 'required|array',
-            'guardian_ids.*' => 'integer|exists:guardians,id',
+            'guardians'                => 'required|array',
+            'guardians.*.id'           => 'required|integer|exists:guardians,id',
+            'guardians.*.relationship' => 'nullable|string|max:50',
         ]);
 
-        $student->guardians()->sync($data['guardian_ids']);
+        $sync = collect($data['guardians'])->mapWithKeys(fn ($g) => [
+            $g['id'] => ['relationship' => $g['relationship'] ?? null],
+        ])->all();
+
+        $student->guardians()->sync($sync);
 
         return response()->json(['message' => 'Guardians updated.']);
     }

@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('last_name', 100);
             $table->string('contact_number', 20);
             $table->text('address');
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('guardian_id')->constrained()->onDelete('cascade');
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->string('relationship', 50);
+            $table->string('relationship', 50)->nullable();
             $table->timestamps();
         });
 
