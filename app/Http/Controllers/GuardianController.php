@@ -7,18 +7,88 @@ use Illuminate\Http\Request;
 
 class GuardianController extends Controller
 {
+    public function index()
+    {
+        $guardians = Guardian::with('students')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn ($g) => [
+                'id'             => $g->id,
+                'first_name'     => $g->first_name,
+                'middle_name'    => $g->middle_name,
+                'last_name'      => $g->last_name,
+                'full_name'      => $g->full_name,
+                'contact_number' => $g->contact_number,
+                'students'       => $g->students->map(fn ($s) => [
+                    'id'           => $s->id,
+                    'custom_id'    => $s->custom_id,
+                    'full_name'    => $s->full_name,
+                    'relationship' => $s->pivot->relationship,
+                ]),
+            ]);
+
+        return response()->json($guardians);
+    }
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'first_name'     => 'required|string|max:100',
             'middle_name'    => 'nullable|string|max:100',
             'last_name'      => 'required|string|max:100',
             'contact_number' => 'required|string|max:20',
-            'address'        => 'nullable|string',
         ]);
 
-        Guardian::create($validated);
+        $guardian = Guardian::create($data);
 
-        return redirect()->back();
+        return response()->json([
+            'id'             => $guardian->id,
+            'first_name'     => $guardian->first_name,
+            'middle_name'    => $guardian->middle_name,
+            'last_name'      => $guardian->last_name,
+            'full_name'      => $guardian->full_name,
+            'contact_number' => $guardian->contact_number,
+            'students'       => [],
+        ], 201);
+    }
+
+    public function update(Request $request, Guardian $guardian)
+    {
+        $data = $request->validate([
+            'first_name'     => 'required|string|max:100',
+            'middle_name'    => 'nullable|string|max:100',
+            'last_name'      => 'required|string|max:100',
+            'contact_number' => 'required|string|max:20',
+        ]);
+
+        $guardian->update($data);
+
+        return response()->json([
+            'id'             => $guardian->id,
+            'first_name'     => $guardian->first_name,
+            'middle_name'    => $guardian->middle_name,
+            'last_name'      => $guardian->last_name,
+            'full_name'      => $guardian->full_name,
+            'contact_number' => $guardian->contact_number,
+        ]);
+    }
+
+    public function destroy(Guardian $guardian)
+    {
+        $guardian->delete();
+
+        return response()->json(['message' => 'Guardian deleted.']);
+    }
+
+    public function sync_students(Request $request, Guardian $guardian)
+    {
+        $data = $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'integer|exists:students,id',
+        ]);
+
+        $guardian->students()->sync($data['student_ids']);
+
+        return response()->json(['message' => 'Students updated.']);
     }
 }

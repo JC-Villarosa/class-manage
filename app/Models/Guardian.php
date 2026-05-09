@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Guardian extends Model
 {
@@ -15,14 +15,19 @@ class Guardian extends Model
         'middle_name',
         'last_name',
         'contact_number',
-        'address',
     ];
 
-    public function students()
+    public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Student::class)
+        return $this->belongsToMany(Student::class, 'guardian_student')
             ->withPivot('relationship')
-            ->withTimeStamps();
+            ->withTimestamps();
     }
-    
+
+    public function getFullNameAttribute(): string
+    {
+        return collect([$this->first_name, $this->middle_name, $this->last_name])
+            ->filter()
+            ->implode(' ');
+    }
 }

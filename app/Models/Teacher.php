@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Teacher extends Model
 {
@@ -13,14 +14,19 @@ class Teacher extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'subject',
         'contact_number',
-        'address'
     ];
 
-    public function students()
+    public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Student::class, 'student_teacher')
-            ->withTimeStamps();
+        return $this->belongsToMany(Student::class, 'student_teacher');
     }
-    
+
+    public function getFullNameAttribute(): string
+    {
+        return collect([$this->first_name, $this->middle_name, $this->last_name])
+            ->filter()
+            ->implode(' ');
+    }
 }
