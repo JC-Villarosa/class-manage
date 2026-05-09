@@ -348,6 +348,11 @@
             />
           </div>
 
+          <div v-if="modal.type === 'guardian'">
+            <label class="label">Email</label>
+            <input v-model="form.email" type="email" class="input-primary" placeholder="e.g., name@email.com" />
+          </div>
+
           <div v-if="modal.type === 'student'" class="border-t-2 border-gray-200 pt-4 space-y-4">
             <div>
               <label class="label font-semibold text-indigo-600">Assign Teachers</label>
@@ -419,29 +424,31 @@
           <h3 class="text-lg font-bold text-gray-900">{{ list_modal.title }}</h3>
           <button @click="list_modal.open = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
-        <div class="card-container overflow-x-auto">
-          <table class="w-full">
-            <thead class="table-head">
-              <tr>
-                <th v-for="col in list_modal.columns" :key="col.key" class="th text-left">{{ col.label }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="!list_modal.rows?.length" class="tr-empty">
-                <td :colspan="list_modal.columns.length" class="py-8">
-                  <p class="text-center text-gray-400 text-sm">No records found.</p>
-                </td>
-              </tr>
-              <tr v-for="(row, i) in list_modal.rows" :key="i" class="tr">
-                <td
-                  v-for="col in list_modal.columns"
-                  :key="col.key"
-                  class="td"
-                  :class="col.class"
-                >{{ row[col.key] ?? '—' }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="card-container">
+          <div class="overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="table-head">
+                <tr>
+                  <th v-for="col in list_modal.columns" :key="col.key" class="th text-left">{{ col.label }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="!list_modal.rows?.length" class="tr-empty">
+                  <td :colspan="list_modal.columns.length" class="py-8">
+                    <p class="text-center text-gray-400 text-sm">No records found.</p>
+                  </td>
+                </tr>
+                <tr v-for="(row, i) in list_modal.rows" :key="i" class="tr">
+                  <td
+                    v-for="col in list_modal.columns"
+                    :key="col.key"
+                    class="td"
+                    :class="col.class"
+                  >{{ row[col.key] ?? '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -487,6 +494,8 @@ const teacher_columns = [
 ]
 const guardian_columns = [
   { key: 'full_name',    label: 'Name' },
+  { key: 'contact_number', label: 'Contact' },
+  { key: 'email', label: 'Email' },
   { key: 'relationship', label: 'Relationship' },
 ]
 
@@ -513,6 +522,7 @@ const form  = reactive({
   last_name: '',
   subject: '',
   contact_number: '',
+  email: '',
   teacher_ids: [],
   guardian_ids: [],
 })
@@ -546,6 +556,7 @@ function open_add_modal(type)
     last_name: '',
     subject: '',
     contact_number: '',
+    email: '',
     teacher_ids: [],
     guardian_ids: [],
   })
@@ -562,6 +573,7 @@ function open_edit_modal(type, item)
     last_name:      item.last_name,
     subject:        item.subject || '',
     contact_number: item.contact_number || '',
+    email:          item.email || '',
     teacher_ids:    type === 'student' ? (item.teachers?.map(t => t.id) || []) : [],
     guardian_ids:   type === 'student' ? (item.guardians?.map(g => g.id) || []) : [],
   })

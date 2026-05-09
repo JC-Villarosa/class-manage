@@ -21,13 +21,16 @@ class StudentController extends Controller
                 'full_name'      => $s->full_name,
                 'contact_number' => $s->contact_number,
                 'guardians'      => $s->guardians->map(fn ($g) => [
-                    'id'           => $g->id,
-                    'full_name'    => $g->full_name,
-                    'relationship' => $g->pivot->relationship,
+                    'id'             => $g->id,
+                    'full_name'      => $g->full_name,
+                    'contact_number' => $g->contact_number,
+                    'email'          => $g->email,
+                    'relationship'   => $g->pivot->relationship,
                 ]),
                 'teachers' => $s->teachers->map(fn ($t) => [
                     'id'        => $t->id,
                     'full_name' => $t->full_name,
+                    'subject'   => $t->subject,
                 ]),
             ]);
 

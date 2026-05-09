@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('last_name', 100);
             $table->string('contact_number', 20);
             $table->text('address');
+            $table->string('email')->unique();
             $table->timestamps();
             $table->softDeletes();
         });

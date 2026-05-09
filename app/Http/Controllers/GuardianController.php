@@ -19,6 +19,7 @@ class GuardianController extends Controller
                 'last_name'      => $g->last_name,
                 'full_name'      => $g->full_name,
                 'contact_number' => $g->contact_number,
+                'email'          => $g->email,
                 'students'       => $g->students->map(fn ($s) => [
                     'id'           => $s->id,
                     'custom_id'    => $s->custom_id,
@@ -37,6 +38,7 @@ class GuardianController extends Controller
             'middle_name'    => 'nullable|string|max:100',
             'last_name'      => 'required|string|max:100',
             'contact_number' => 'required|string|max:20',
+            'email'          => 'nullable|email|max:100',
         ]);
 
         $guardian = Guardian::create($data);
@@ -48,6 +50,7 @@ class GuardianController extends Controller
             'last_name'      => $guardian->last_name,
             'full_name'      => $guardian->full_name,
             'contact_number' => $guardian->contact_number,
+            'email'          => $guardian->email,
             'students'       => [],
         ], 201);
     }
@@ -59,6 +62,7 @@ class GuardianController extends Controller
             'middle_name'    => 'nullable|string|max:100',
             'last_name'      => 'required|string|max:100',
             'contact_number' => 'required|string|max:20',
+            'email'          => 'nullable|email|max:100',
         ]);
 
         $guardian->update($data);
@@ -70,6 +74,7 @@ class GuardianController extends Controller
             'last_name'      => $guardian->last_name,
             'full_name'      => $guardian->full_name,
             'contact_number' => $guardian->contact_number,
+            'email'          => $guardian->email,
         ]);
     }
 
