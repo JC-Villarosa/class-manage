@@ -20,14 +20,14 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('guardians', function (Blueprint $table) 
+        Schema::create('guardians', function (Blueprint $table)
         {
             $table->id();
             $table->string('first_name', 100);
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100);
-            $table->string('contact_number', 20);
-            $table->text('address');
+            $table->string('contact_number', 20)->nullable();
+            $table->text('address')->nullable();
             $table->string('email')->nullable()->unique();
             $table->timestamps();
             $table->softDeletes();
@@ -42,14 +42,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('teachers', function (Blueprint $table) 
+        Schema::create('teachers', function (Blueprint $table)
         {
             $table->id();
             $table->string('first_name', 100);
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100);
-            $table->string('contact_number', 20);
-            $table->text('address');
+            $table->string('contact_number', 20)->nullable();
+            $table->text('address')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

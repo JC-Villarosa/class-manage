@@ -310,7 +310,7 @@
       <div class="modal-box">
         <div class="mb-6">
           <h3 class="text-xl font-bold text-gray-900">
-            {{ modal.mode === 'add' ? 'Create' : 'Update' }} {{ modal.type | capitalize }}
+            {{ modal.mode === 'add' ? 'Create' : 'Update' }} {{ modal.type.charAt(0).toUpperCase() + modal.type.slice(1) }}
           </h3>
           <p class="text-sm text-gray-500 mt-1">
             {{ modal.mode === 'add' ? 'Add a new entry' : 'Update this entry' }}
